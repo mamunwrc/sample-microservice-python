@@ -1,2 +1,2 @@
-# DevPlanet
-Github Repository for the Dev Planet Publication.
+# Page Cloud Academy
+Github Repository for Page Cloud Academy
