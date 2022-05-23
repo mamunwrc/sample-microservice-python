@@ -1,6 +1,14 @@
 from flask import Flask,request,render_template,redirect
 import requests
-import os
+import json 
+import pika
+
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=600, blocked_connection_timeout=300))
+channel = connection.channel()
+
+def publish(method, body):
+    properties = pika.BasicProperties(method)
+    channel.basic_publish(exchange='', routing_key='blog', body=json.dumps(body), properties=properties)
 
 class Review(object):
     def __init__(self,name,review):
@@ -16,10 +24,12 @@ def index():
         name = request.form["name"]
         review = request.form["review"]
 
-        res = requests.post("http://backend:5000/reviews/add",data={"name":name,"review":review})
-
-        if res.status_code == 200:
-            return redirect("/reviews")
+        # res = requests.post("http://backend:5000/reviews/add",data={"name":name,"review":review})
+        res = {"name": name,
+                "review": review}
+        
+        publish('add',res)
+        return redirect("/reviews")
 
     return render_template("index.html")
 
